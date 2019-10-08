@@ -47,14 +47,15 @@ public class Certificates {
 		PublicKey publicKey = cert.getPublicKey();
 		byte[] encoded = publicKey.getEncoded();
 		byte[] b64key = Base64.getEncoder().encode(encoded);
-		System.out.println("b64key = " + new String(b64key));
+		//System.out.println("b64key = " + new String(b64key));
 
 		X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(encoded);
 
 		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 		PublicKey key = keyFactory.generatePublic(x509EncodedKeySpec);
 
-		System.out.println("x509EncodedKeySpec = " + new String(key.getEncoded()));
+		//System.out.println();
+		//System.out.println("x509EncodedKeySpec = " + new String(key.getEncoded()));
 		
 		return publicKey;
 	}

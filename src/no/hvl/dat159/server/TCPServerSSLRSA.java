@@ -5,10 +5,14 @@ import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PublicKey;
+import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 
@@ -18,6 +22,7 @@ import javax.net.ssl.SSLServerSocketFactory;
 
 import no.hvl.dat159.config.ServerConfig;
 import no.hvl.dat159.crypto.Certificates;
+import no.hvl.dat159.crypto.DigitalSignature;
 
 
 public class TCPServerSSLRSA {
@@ -40,7 +45,7 @@ public class TCPServerSSLRSA {
 		}
 	}
 	
-	public void socketlistener() throws NoSuchAlgorithmException, NoSuchPaddingException, CertificateException, InvalidKeySpecException {
+	public void socketlistener() throws NoSuchAlgorithmException, NoSuchPaddingException, CertificateException, InvalidKeySpecException, InvalidKeyException, SignatureException, NoSuchProviderException {
 		
 		try {
 			
@@ -76,8 +81,9 @@ public class TCPServerSSLRSA {
 		}
 	}
 	
-	private boolean checkMessageForValidity(String messageandsignature, PublicKey publickey) {
+	private boolean checkMessageForValidity(String messageandsignature, PublicKey publickey) throws InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException, SignatureException, NoSuchProviderException {
 		
+		System.out.println("checkMessageForValidity...");
 		if(messageandsignature.startsWith("GET /")) {
 			messageandsignature = messageandsignature.replace("GET /", "");
 			messageandsignature = messageandsignature.replace("HTTP/1.1", "");
@@ -89,7 +95,8 @@ public class TCPServerSSLRSA {
 		String message = tokens[0].replace("%20", " ");
 		String signatureinhex = tokens[1];
 		
-		// implement me - verify signature and send the result
+		//verify signature and send the result
+		isValid = DigitalSignature.verify(message, DigitalSignature.getEncodedBinary(signatureinhex), publickey, DigitalSignature.SIGNATURE_SHA256WithRSA);
 		
 		return isValid;
 		
@@ -98,12 +105,13 @@ public class TCPServerSSLRSA {
 	
 	private PublicKey getPublicKey() throws NoSuchAlgorithmException, NoSuchPaddingException, CertificateException, FileNotFoundException, InvalidKeySpecException {
 		
-		String certpath = "certkeys/tcpexample.cer";
+		String certpath = "certkeys/tcpexample.cer";		// extract public key from the certificate file
 		
 		return Certificates.getPublicKey(certpath);
 	}
 	
-	public static void main(String[] args) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, CertificateException, InvalidKeySpecException {
+	public static void main(String[] args) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, CertificateException, InvalidKeySpecException, InvalidKeyException, SignatureException, NoSuchProviderException {
+		// set the keystore dynamically using the system property
 		System.setProperty("javax.net.ssl.keyStore", "certkeys/tcp_keystore");
 		System.setProperty("javax.net.ssl.keyStorePassword", "123456");
 		

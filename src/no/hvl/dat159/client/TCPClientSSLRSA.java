@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.SignatureException;
 import java.security.UnrecoverableEntryException;
@@ -18,6 +19,7 @@ import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
 import no.hvl.dat159.config.ServerConfig;
+import no.hvl.dat159.crypto.DigitalSignature;
 import no.hvl.dat159.crypto.KeyStores;
 
 public class TCPClientSSLRSA {
@@ -30,7 +32,7 @@ public class TCPClientSSLRSA {
 		this.port = port;
 	}
 	
-	public void clientProcess(String msg) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, NoSuchPaddingException {
+	public void clientProcess(String msg) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, NoSuchPaddingException, KeyStoreException, CertificateException, UnrecoverableEntryException, NoSuchProviderException {
 
 		try {
 			
@@ -43,9 +45,8 @@ public class TCPClientSSLRSA {
 			System.out.println("Message to TCPServer: "+msg);
 			
 			// sign the message and append the signature to the message to the server
-			
-			// implement me
-			String signatureinhex = "";
+
+			String signatureinhex = DigitalSignature.getHexValue((DigitalSignature.sign(msg, getPrivateKey(), DigitalSignature.SIGNATURE_SHA256WithRSA)));
 			
 			msg = msg + "-"+signatureinhex;			// format message as: Message-Signature
 			
@@ -79,11 +80,11 @@ public class TCPClientSSLRSA {
 	}
 
 	
-	public static void main(String[] args) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, NoSuchPaddingException {
+	public static void main(String[] args) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, NoSuchPaddingException, KeyStoreException, CertificateException, UnrecoverableEntryException, NoSuchProviderException {
 		System.setProperty("javax.net.ssl.trustStore", "certkeys/tcp_truststore");
 		System.setProperty("javax.net.ssl.trustStorePassword", "123456");
 		
-		String message = "Message from TCP SSLClient";
+		String message = "Message fom TCP SSLClient";
 		TCPClientSSLRSA c = new TCPClientSSLRSA(ServerConfig.SERVER, ServerConfig.PORT);
 		c.clientProcess(message);
 
