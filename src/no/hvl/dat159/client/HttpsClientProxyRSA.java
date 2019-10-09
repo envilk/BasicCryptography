@@ -8,21 +8,15 @@ import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.security.InvalidKeyException;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.SignatureException;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateException;
 
 import javax.crypto.NoSuchPaddingException;
 import javax.net.ssl.HttpsURLConnection;
 
 import no.hvl.dat159.config.ProxyConfig;
 import no.hvl.dat159.config.ServerConfig;
-import no.hvl.dat159.crypto.DigitalSignature;
-import no.hvl.dat159.crypto.KeyStores;
 
 public class HttpsClientProxyRSA {
 
@@ -34,7 +28,7 @@ public class HttpsClientProxyRSA {
 		this.port = port;
 	}
 	
-	public void doClient(String message) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, NoSuchPaddingException, KeyStoreException, CertificateException, UnrecoverableEntryException, NoSuchProviderException {
+	public void doClient(String message) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, NoSuchPaddingException {
 		
 		URL url;
 		
@@ -44,8 +38,9 @@ public class HttpsClientProxyRSA {
 		try {
 			
 			// sign the message and append the signature to the message to the server
-
-			String signatureinhex = DigitalSignature.sign(message, getPrivateKey(), DigitalSignature.SIGNATURE_SHA256WithRSA).toString();
+			
+			// implement me
+			String signatureinhex = "";
 						
 			message = message + "-"+signatureinhex;			// format message as: Message-Signature
 			
@@ -71,16 +66,18 @@ public class HttpsClientProxyRSA {
 
 	}
 
-	private PrivateKey getPrivateKey() throws NoSuchAlgorithmException, NoSuchPaddingException, KeyStoreException, CertificateException, UnrecoverableEntryException, IOException {
+	private PrivateKey getPrivateKey() throws NoSuchAlgorithmException, NoSuchPaddingException {
 		
-		PrivateKey privatekey = KeyStores.getPrivateKeyFromKeyStore("certkeys/tcp_keystore", "tcpexample", "123456");;
+		PrivateKey privatekey = null;
+		
+		// implement me
 		
 		return privatekey;
 	}
 	
-	public static void main(String[] args) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, NoSuchPaddingException, KeyStoreException, CertificateException, UnrecoverableEntryException, NoSuchProviderException {
-		System.setProperty("javax.net.ssl.trustStore", "certkeys/tcp_truststore");
-		System.setProperty("javax.net.ssl.trustStorePassword", "123456");
+	public static void main(String[] args) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, NoSuchPaddingException {
+		
+		// set the truststores dynamically using the system property
 		
 		// implement me - You need to also add the zap truststore in order for your to route ssl traffic via zap
 	

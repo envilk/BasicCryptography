@@ -6,13 +6,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.security.InvalidKeyException;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.SignatureException;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateException;
 
 import javax.crypto.NoSuchPaddingException;
 import javax.net.SocketFactory;
@@ -32,7 +28,7 @@ public class TCPClientSSLRSA {
 		this.port = port;
 	}
 	
-	public void clientProcess(String msg) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, NoSuchPaddingException, KeyStoreException, CertificateException, UnrecoverableEntryException, NoSuchProviderException {
+	public void clientProcess(String msg) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, NoSuchPaddingException {
 
 		try {
 			
@@ -45,8 +41,9 @@ public class TCPClientSSLRSA {
 			System.out.println("Message to TCPServer: "+msg);
 			
 			// sign the message and append the signature to the message to the server
-
-			String signatureinhex = DigitalSignature.getHexValue((DigitalSignature.sign(msg, getPrivateKey(), DigitalSignature.SIGNATURE_SHA256WithRSA)));
+			
+			// implement me
+			String signatureinhex = "";
 			
 			msg = msg + "-"+signatureinhex;			// format message as: Message-Signature
 			
@@ -72,19 +69,24 @@ public class TCPClientSSLRSA {
 
 	}
 	
-	private PrivateKey getPrivateKey() throws NoSuchAlgorithmException, NoSuchPaddingException, KeyStoreException, CertificateException, UnrecoverableEntryException, IOException {
+	private PrivateKey getPrivateKey() throws NoSuchAlgorithmException, NoSuchPaddingException {
 		
-		PrivateKey privatekey = KeyStores.getPrivateKeyFromKeyStore("certkeys/tcp_keystore", "tcpexample", "123456");
+		PrivateKey privatekey = null;
+		
+		// implement me
 		
 		return privatekey;
 	}
 
 	
-	public static void main(String[] args) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, NoSuchPaddingException, KeyStoreException, CertificateException, UnrecoverableEntryException, NoSuchProviderException {
+	public static void main(String[] args) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, NoSuchPaddingException {
+		// set the truststore dynamically using the system property
 		System.setProperty("javax.net.ssl.trustStore", "certkeys/tcp_truststore");
 		System.setProperty("javax.net.ssl.trustStorePassword", "123456");
+
+		// implement me
 		
-		String message = "Message fom TCP SSLClient";
+		String message = "Message from TCP SSLClient";
 		TCPClientSSLRSA c = new TCPClientSSLRSA(ServerConfig.SERVER, ServerConfig.PORT);
 		c.clientProcess(message);
 
